@@ -5,9 +5,6 @@ The ShortcutBadger makes your Android App showing the count of unread messages a
 
 # Currently support launchers:<br/>
 
-Android native Launcher(Not support Android L)<br/>
-![ScreenShot](https://raw.github.com/leolin310148/ShortcutBadger/master/screenshots/ss_android.png)
-
 Sony Home Launcher<br/>
 ![ScreenShot](https://raw.github.com/leolin310148/ShortcutBadger/master/screenshots/ss_sony.png)
 
