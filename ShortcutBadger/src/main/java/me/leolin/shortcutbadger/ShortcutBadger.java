@@ -76,7 +76,7 @@ public abstract class ShortcutBadger {
         }
 
         //not support this home launcher package
-        Log.w("ShortcutBadger", "No support for: " + currentHomePackage);
+        if (mShortcutBadger == null) Log.w("ShortcutBadger", "No support for: " + currentHomePackage);
 //        if (mShortcutBadger == null) {
 //            String exceptionMessage = String.format(MESSAGE_NOT_SUPPORT_THIS_HOME, currentHomePackage);
 //            throw new ShortcutBadgeException(exceptionMessage);
