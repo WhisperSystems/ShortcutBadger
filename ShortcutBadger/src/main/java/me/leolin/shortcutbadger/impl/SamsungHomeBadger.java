@@ -17,6 +17,7 @@ import me.leolin.shortcutbadger.ShortcutBadger;
  */
 public class SamsungHomeBadger extends ShortcutBadger {
     private static final String CONTENT_URI = "content://com.sec.badge/apps?notify=true";
+    private static final String[] CONTENT_PROJECTION = new String[]{"_id","class"};
 
     public SamsungHomeBadger(Context context) {
         super(context);
@@ -26,20 +27,42 @@ public class SamsungHomeBadger extends ShortcutBadger {
     protected void executeBadge(int badgeCount) throws ShortcutBadgeException {
         Uri mUri = Uri.parse(CONTENT_URI);
         ContentResolver contentResolver = mContext.getContentResolver();
-        Cursor cursor = contentResolver.query(mUri, new String[]{"_id",}, "package=?", new String[]{getContextPackageName()}, null);
-        if (cursor.moveToNext()) {
-            int id = cursor.getInt(0);
-            ContentValues contentValues = new ContentValues();
-            contentValues.put("badgecount", badgeCount);
-            contentResolver.update(mUri, contentValues, "_id=?", new String[]{String.valueOf(id)});
-        } else {
-            ContentValues contentValues = new ContentValues();
+        Cursor cursor = null;
+        try {
+            cursor = contentResolver.query(mUri, CONTENT_PROJECTION, "package=?", new String[]{getContextPackageName()}, null);
+            if (cursor != null) {
+                String entryActivityName = getEntryActivityName();
+                boolean entryActivityExist = false;
+                while (cursor.moveToNext()) {
+                    int id = cursor.getInt(0);
+                    ContentValues contentValues = getContentValues(badgeCount, false);
+                    contentResolver.update(mUri, contentValues, "_id=?", new String[]{String.valueOf(id)});
+                    if (entryActivityName.equals(cursor.getString(cursor.getColumnIndex("class")))) {
+                        entryActivityExist = true;
+                    }
+                }
+
+                if (!entryActivityExist) {
+                    ContentValues contentValues = getContentValues(badgeCount, true);
+                    contentResolver.insert(mUri, contentValues);
+                }
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+    }
+
+    private ContentValues getContentValues(int badgeCount, boolean isInsert) {
+        ContentValues contentValues = new ContentValues();
+        if (isInsert) {
             contentValues.put("package", getContextPackageName());
             contentValues.put("class", getEntryActivityName());
-            contentValues.put("badgecount", badgeCount);
-            contentResolver.insert(mUri, contentValues);
         }
 
+        contentValues.put("badgecount", badgeCount);
 
+        return contentValues;
     }
 }
